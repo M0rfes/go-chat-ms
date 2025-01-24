@@ -3,19 +3,8 @@ services:
   ui:
     build:
       context: ./cmd/ui
-    ports:
-      - "8080:8080"
     networks:
       - app-network
-
-  # auth:
-  #   build:
-  #     context: ./auth-service
-  #   ports:
-  #     - "8081:8081"
-  #   networks:
-  #     - app-network
-
   gateway:
     build:
       context: ./gateway
@@ -25,8 +14,6 @@ services:
       - app-network
     depends_on:
       - ui
-      # - auth
-
 networks:
   app-network:
     driver: bridge
