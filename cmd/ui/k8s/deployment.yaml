@@ -23,6 +23,22 @@ spec:
           volumeMounts:
             - name: templates-volume
               mountPath: /templates
+          readinessProbe:                     # Readiness Probe
+            httpGet:
+              path: /health                  # Path to your health endpoint
+              port: 8080                     # Port where the container listens
+            initialDelaySeconds: 5           # Delay before the first probe
+            periodSeconds: 10                # Probe frequency
+            timeoutSeconds: 3                # Timeout for each probe
+            failureThreshold: 3              # Number of failed probes before marking not ready
+          livenessProbe:                      # Liveness Probe
+            httpGet:
+              path: /health                  # Path to your health endpoint
+              port: 8080                     # Port where the container listens
+            initialDelaySeconds: 10          # Delay before the first probe
+            periodSeconds: 15                # Probe frequency
+            timeoutSeconds: 5                # Timeout for each probe
+            failureThreshold: 3              # Number of failed probes before restarting the pod
       volumes:
         - name: templates-volume
           emptyDir: {}

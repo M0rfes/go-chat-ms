@@ -1,4 +1,4 @@
-FROM golang:1.20-alpine as builder
+FROM golang:1.23-alpine as builder
 
 WORKDIR /app
 
@@ -10,7 +10,7 @@ RUN go mod download
 COPY . .
 
 # Build the binary
-RUN go build -o main ./cmd
+RUN go build -o main .
 
 # Deploy stage
 FROM alpine:latest

@@ -5,6 +5,29 @@ services:
       context: ./cmd/ui
     networks:
       - app-network
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 10s                                               # Check every 10 seconds
+      timeout: 5s                                                 # Timeout after 5 seconds
+      retries: 3                                                  # Mark as unhealthy after 3 failures
+      start_period: 5s                                            # Wait 5 seconds before starting checks
+  
+  auth:
+    build:
+      context: ./cmd/auth
+    networks:
+      - app-network
+    ports:
+      - "8081:8081"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081/health"]
+      interval: 10s                                               # Check every 10 seconds
+      timeout: 5s                                                 # Timeout after 5 seconds
+      retries: 3                                                  # Mark as unhealthy after 3 failures
+      start_period: 5s                                            # Wait 5 seconds before starting checks
+
   gateway:
     build:
       context: ./gateway
@@ -13,7 +36,9 @@ services:
     networks:
       - app-network
     depends_on:
-      - ui
+    - ui
+    - auth
+
 networks:
   app-network:
     driver: bridge

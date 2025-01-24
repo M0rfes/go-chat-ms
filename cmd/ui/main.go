@@ -19,6 +19,7 @@ func main() {
 	router.HTMLRender = createRender()
 
 	// Routes
+	router.GET("/health", controllers.Health)
 	router.GET("/", controllers.IndexPage)
 
 	// Start the server

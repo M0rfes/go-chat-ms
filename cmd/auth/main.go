@@ -9,6 +9,7 @@ func main() {
 	router := gin.Default()
 
 	// Routes
+	router.GET("/health", controllers.Health)
 	router.POST("/auth/login", controllers.Login)
 	router.POST("/auth/admin", controllers.AdminLogin)
 
