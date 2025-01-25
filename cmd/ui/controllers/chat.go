@@ -8,6 +8,6 @@ import (
 
 func ChatPage(c *gin.Context) {
 	c.HTML(http.StatusOK, "chat", gin.H{
-		"title": "Login Page",
+		"title": "Chat Page",
 	})
 }
