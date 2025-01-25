@@ -9,6 +9,7 @@ import (
 func createRender() multitemplate.Renderer {
 	r := multitemplate.NewRenderer()
 	r.AddFromFiles("login", "templates/base.html", "templates/index.html")
+	r.AddFromFiles("chat", "templates/base.html", "templates/chat.html")
 	return r
 }
 
@@ -20,6 +21,7 @@ func main() {
 
 	// Routes
 	router.GET("/health", controllers.Health)
+	router.GET("/chat", controllers.ChatPage)
 	router.GET("/", controllers.IndexPage)
 
 	// Start the server

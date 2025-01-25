@@ -11,7 +11,6 @@ func main() {
 	// Routes
 	router.GET("/health", controllers.Health)
 	router.POST("/auth/login", controllers.Login)
-	router.POST("/auth/admin", controllers.AdminLogin)
 
 	// Start the server
 	router.Run(":8081")
