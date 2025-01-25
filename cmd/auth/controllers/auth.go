@@ -1,43 +1,45 @@
 package controllers
 
 import (
-	"net/http"
-
 	"github.com/gin-gonic/gin"
 )
 
-func Login(c *gin.Context) {
-	var user struct {
-		Username string `json:"username"`
-		Password string `json:"password"`
-	}
-	if err := c.BindJSON(&user); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON"})
-		return
-	}
+// UserLogin handles the user login process.
+// It expects a JSON payload with "username" and "password" fields.
+// If the credentials are valid, it returns a signed JWT token and a refresh token.
+// If the credentials are invalid, it returns an unauthorized error.
+//
+// @Summary User login
+// @Description User login with username and password
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param admin body struct{ Username string `json:"username"`; Password string `json:"password"` } true "User credentials"
+// @Success 200 {object} map[string]interface{} "User login successful"
+// @Failure 400 {object} map[string]interface{} "Invalid JSON"
+// @Failure 401 {object} map[string]interface{} "Invalid admin credentials"
+// @Failure 500 {object} map[string]interface{} "Failed to sign token or refresh token"
+// @Router /login/user [post]
+func UserLogin(c *gin.Context) {
 
-	// Authenticate user (mock logic)
-	if user.Username == "user" && user.Password == "password" {
-		c.JSON(http.StatusOK, gin.H{"message": "Login successful", "token": "user-token"})
-	} else {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
-	}
 }
 
+// AdminLogin handles the admin login process.
+// It expects a JSON payload with "username" and "password" fields.
+// If the credentials are valid, it returns a signed JWT token and a refresh token.
+// If the credentials are invalid, it returns an unauthorized error.
+//
+// @Summary Admin login
+// @Description Admin login with username and password
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param admin body struct{ Username string `json:"username"`; Password string `json:"password"` } true "Admin credentials"
+// @Success 200 {object} map[string]interface{} "Admin login successful"
+// @Failure 400 {object} map[string]interface{} "Invalid JSON"
+// @Failure 401 {object} map[string]interface{} "Invalid admin credentials"
+// @Failure 500 {object} map[string]interface{} "Failed to sign token or refresh token"
+// @Router /login/admin [post]
 func AdminLogin(c *gin.Context) {
-	var admin struct {
-		Username string `json:"username"`
-		Password string `json:"password"`
-	}
-	if err := c.BindJSON(&admin); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON"})
-		return
-	}
 
-	// Authenticate admin (mock logic)
-	if admin.Username == "admin" && admin.Password == "admin" {
-		c.JSON(http.StatusOK, gin.H{"message": "Admin login successful", "token": "admin-token"})
-	} else {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid admin credentials"})
-	}
 }

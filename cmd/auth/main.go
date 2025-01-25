@@ -10,7 +10,7 @@ func main() {
 
 	// Routes
 	router.GET("/health", controllers.Health)
-	router.POST("/auth/login", controllers.Login)
+	router.POST("/auth/login", controllers.UserLogin)
 
 	// Start the server
 	router.Run(":8081")

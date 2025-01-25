@@ -3,5 +3,5 @@ go 1.23.4
 use ./cmd/ui
 use ./cmd/auth
 use ./cmd/chat
-use pkg/auth
+use pkg/token
 
