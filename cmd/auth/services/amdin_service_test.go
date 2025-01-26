@@ -10,33 +10,33 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-type userMockTokenService struct {
+type adminMockTokenService struct {
 	mock.Mock
 }
 
-func (m *userMockTokenService) Sign(claims *pkg.Claims, duration time.Duration) (string, error) {
+func (m *adminMockTokenService) Sign(claims *pkg.Claims, duration time.Duration) (string, error) {
 	args := m.Called(claims, duration)
 	return args.String(0), args.Error(1)
 }
 
-func (m *userMockTokenService) Validate(tokenString string) (*pkg.Claims, error) {
+func (m *adminMockTokenService) Validate(tokenString string) (*pkg.Claims, error) {
 	args := m.Called(tokenString)
 	return args.Get(0).(*pkg.Claims), args.Error(1)
 }
 
-func TestUserService_Login(t *testing.T) {
+func TestAdminService_Login(t *testing.T) {
 	t.Run("signs token with valid claims", func(t *testing.T) {
-		mockToken := new(userMockTokenService)
-		userService := services.NewUserService(mockToken)
+		mockToken := new(adminMockTokenService)
+		adminService := services.NewAdminService(mockToken)
 
 		mockToken.On("Sign", mock.Anything, 300*time.Second).Return("token", nil).Once()
 		mockToken.On("Sign", mock.Anything, 30*24*time.Hour).Return("refreshToken", nil).Once()
 
 		req := services.LoginRequest{
-			Username: "test",
-			Password: "test",
+			Username: "admin",
+			Password: "admin",
 		}
-		resp, err := userService.Login(req)
+		resp, err := adminService.Login(req)
 
 		assert.NoError(t, err)
 		assert.NotNil(t, resp)
@@ -45,44 +45,58 @@ func TestUserService_Login(t *testing.T) {
 		mockToken.AssertExpectations(t)
 	})
 
-	t.Run("returns error when token signing fails", func(t *testing.T) {
-		mockToken := new(userMockTokenService)
-		userService := services.NewUserService(mockToken)
-
-		mockToken.On("Sign", mock.Anything, 300*time.Second).Return("", assert.AnError).Once()
+	t.Run("returns error when credentials are invalid", func(t *testing.T) {
+		mockToken := new(adminMockTokenService)
+		adminService := services.NewAdminService(mockToken)
 
 		req := services.LoginRequest{
 			Username: "test",
 			Password: "test",
 		}
-		resp, err := userService.Login(req)
+		resp, err := adminService.Login(req)
+
+		assert.Error(t, err)
+		assert.EqualError(t, err, "invalid credentials")
+		assert.Nil(t, resp)
+	})
+
+	t.Run("returns error when token signing fails", func(t *testing.T) {
+		mockToken := new(adminMockTokenService)
+		adminService := services.NewAdminService(mockToken)
+
+		mockToken.On("Sign", mock.Anything, 300*time.Second).Return("", assert.AnError).Once()
+
+		req := services.LoginRequest{
+			Username: "admin",
+			Password: "admin",
+		}
+		resp, err := adminService.Login(req)
 
 		assert.Error(t, err)
 		assert.Nil(t, resp)
-		mockToken.AssertExpectations(t)
 	})
 }
 
-func TestUserService_Refresh(t *testing.T) {
+func TestAdminService_Refresh(t *testing.T) {
 	t.Run("successfully refreshes tokens", func(t *testing.T) {
-		mockToken := new(userMockTokenService)
-		userService := services.NewUserService(mockToken)
+		mockToken := new(adminMockTokenService)
+		adminService := services.NewAdminService(mockToken)
 
 		// Mock the validation of refresh token
 		mockToken.On("Validate", "oldRefreshToken").Return(&pkg.Claims{
-			UserID: "test-user",
+			UserID: "admin",
 		}, nil).Once()
 
 		// Mock the signing of new tokens
 		mockToken.On("Sign", mock.MatchedBy(func(claims *pkg.Claims) bool {
-			return claims.UserID == "test-user"
+			return claims.UserID == "admin"
 		}), 300*time.Second).Return("newToken", nil).Once()
 
 		mockToken.On("Sign", mock.MatchedBy(func(claims *pkg.Claims) bool {
-			return claims.UserID == "test-user"
+			return claims.UserID == "admin"
 		}), 30*24*time.Hour).Return("newRefreshToken", nil).Once()
 
-		resp, err := userService.Refresh("oldRefreshToken")
+		resp, err := adminService.Refresh("oldRefreshToken")
 
 		assert.NoError(t, err)
 		assert.NotNil(t, resp)

@@ -2,7 +2,6 @@ package token
 
 import (
 	"fmt"
-	"os"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -20,21 +19,10 @@ type token struct {
 // NewAuth creates a new instance of Token with a secret key.
 // The secret key is retrieved using the getSecretKey function.
 // Returns a Token interface.
-func NewAuth() Token {
+func NewAuth(secret string) Token {
 	return &token{
-		secret: getSecretKey(),
+		secret: []byte(secret),
 	}
-}
-
-// getSecretKey retrieves the secret key from the environment variable "TOKEN_SECRET_KEY".
-// If the environment variable is not set, it panics with an appropriate error message.
-// Returns the secret key as a byte slice.
-func getSecretKey() []byte {
-	secretKey := os.Getenv("TOKEN_SECRET_KEY")
-	if secretKey == "" {
-		panic("SECRET_KEY environment variable is not set")
-	}
-	return []byte(secretKey)
 }
 
 type Claims struct {
