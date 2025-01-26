@@ -9,7 +9,7 @@ import (
 )
 
 type Token interface {
-	Sign(claims *Claims, ttl int64) (string, error)
+	Sign(claims *Claims, ttl time.Duration) (string, error)
 	Validate(tokenString string) (*Claims, error)
 }
 
@@ -47,14 +47,14 @@ type Claims struct {
 //
 // Parameters:
 //   - claims: The claims to be included in the JWT token.
-//   - ttl: The time-to-live for the token in seconds.
+//   - ttl: The time-to-live for the token (duration for which the token is valid).
 //
 // Returns:
 //   - A signed JWT token as a string.
 //   - An error if there was an issue signing the token.
-func (a *token) Sign(claims *Claims, ttl int64) (string, error) {
+func (a *token) Sign(claims *Claims, ttl time.Duration) (string, error) {
 	secretKey := a.secret
-	claims.RegisteredClaims.ExpiresAt = jwt.NewNumericDate(time.Now().Add(time.Duration(ttl) * time.Second))
+	claims.RegisteredClaims.ExpiresAt = jwt.NewNumericDate(time.Now().Add(ttl))
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
 	signedToken, err := token.SignedString(secretKey)

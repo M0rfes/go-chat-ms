@@ -3,6 +3,7 @@ package token
 import (
 	"os"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -36,7 +37,7 @@ func TestSign(t *testing.T) {
 		claims := &Claims{
 			UserID: "123",
 		}
-		token, err := authService.Sign(claims, 300)
+		token, err := authService.Sign(claims, 300*time.Second)
 		assert.NoError(t, err)
 		assert.NotEmpty(t, token)
 	})
@@ -51,7 +52,7 @@ func TestValidate(t *testing.T) {
 		claims := &Claims{
 			UserID: "123",
 		}
-		token, err := authService.Sign(claims, 300)
+		token, err := authService.Sign(claims, 300*time.Second)
 		assert.NoError(t, err)
 		assert.NotEmpty(t, token)
 
@@ -70,7 +71,7 @@ func TestValidate(t *testing.T) {
 		}
 
 		// Sign the token with the correct secret
-		token, err := authService.Sign(claims, 300)
+		token, err := authService.Sign(claims, 300*time.Second)
 		assert.NoError(t, err)
 		assert.NotEmpty(t, token)
 		os.Setenv("TOKEN_SECRET_KEY", "wrong-secret")
@@ -88,7 +89,7 @@ func TestValidate(t *testing.T) {
 		claims := &Claims{
 			UserID: "123",
 		}
-		token, err := authService.Sign(claims, -1)
+		token, err := authService.Sign(claims, -1*time.Second)
 		assert.NoError(t, err)
 		assert.NotEmpty(t, token)
 
