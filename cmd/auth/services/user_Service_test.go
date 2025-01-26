@@ -10,23 +10,23 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-type userMockTokenService struct {
+type mockUserTokenService struct {
 	mock.Mock
 }
 
-func (m *userMockTokenService) Sign(claims *pkg.Claims, duration time.Duration) (string, error) {
+func (m *mockUserTokenService) Sign(claims *pkg.Claims, duration time.Duration) (string, error) {
 	args := m.Called(claims, duration)
 	return args.String(0), args.Error(1)
 }
 
-func (m *userMockTokenService) Validate(tokenString string) (*pkg.Claims, error) {
+func (m *mockUserTokenService) Validate(tokenString string) (*pkg.Claims, error) {
 	args := m.Called(tokenString)
 	return args.Get(0).(*pkg.Claims), args.Error(1)
 }
 
 func TestUserService_Login(t *testing.T) {
 	t.Run("signs token with valid claims", func(t *testing.T) {
-		mockToken := new(userMockTokenService)
+		mockToken := new(mockUserTokenService)
 		userService := services.NewUserService(mockToken)
 
 		mockToken.On("Sign", mock.Anything, 300*time.Second).Return("token", nil).Once()
@@ -46,7 +46,7 @@ func TestUserService_Login(t *testing.T) {
 	})
 
 	t.Run("returns error when token signing fails", func(t *testing.T) {
-		mockToken := new(userMockTokenService)
+		mockToken := new(mockUserTokenService)
 		userService := services.NewUserService(mockToken)
 
 		mockToken.On("Sign", mock.Anything, 300*time.Second).Return("", assert.AnError).Once()
@@ -65,7 +65,7 @@ func TestUserService_Login(t *testing.T) {
 
 func TestUserService_Refresh(t *testing.T) {
 	t.Run("successfully refreshes tokens", func(t *testing.T) {
-		mockToken := new(userMockTokenService)
+		mockToken := new(mockUserTokenService)
 		userService := services.NewUserService(mockToken)
 
 		// Mock the validation of refresh token
@@ -92,7 +92,7 @@ func TestUserService_Refresh(t *testing.T) {
 	})
 
 	t.Run("returns error when refresh token is invalid", func(t *testing.T) {
-		mockToken := new(userMockTokenService)
+		mockToken := new(mockUserTokenService)
 		userService := services.NewUserService(mockToken)
 
 		mockToken.On("Validate", "invalidToken").Return(&pkg.Claims{}, assert.AnError).Once()
@@ -105,7 +105,7 @@ func TestUserService_Refresh(t *testing.T) {
 	})
 
 	t.Run("returns error when signing new token fails", func(t *testing.T) {
-		mockToken := new(userMockTokenService)
+		mockToken := new(mockUserTokenService)
 		userService := services.NewUserService(mockToken)
 
 		mockToken.On("Validate", "validToken").Return(&pkg.Claims{

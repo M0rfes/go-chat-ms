@@ -1,7 +1,6 @@
 package services
 
 import (
-	"fmt"
 	"time"
 
 	pkg "github.com/M0rfes/go-chat-ms/pkg/token"
@@ -16,6 +15,12 @@ type adminService struct {
 	tokenService pkg.Token
 }
 
+type InvalidCredentialsError struct{}
+
+func (e *InvalidCredentialsError) Error() string {
+	return "invalid credentials"
+}
+
 func NewAdminService(tokenService pkg.Token) AdminService {
 	return &adminService{
 		tokenService: tokenService,
@@ -24,7 +29,7 @@ func NewAdminService(tokenService pkg.Token) AdminService {
 
 func (s *adminService) Login(req LoginRequest) (*LoginResponse, error) {
 	if req.Username != "admin" || req.Password != "admin" {
-		return nil, fmt.Errorf("invalid credentials")
+		return nil, &InvalidCredentialsError{}
 	}
 	claim := &pkg.Claims{
 		UserID: req.Username,

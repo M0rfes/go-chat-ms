@@ -10,23 +10,23 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-type adminMockTokenService struct {
+type mockAdminTokenService struct {
 	mock.Mock
 }
 
-func (m *adminMockTokenService) Sign(claims *pkg.Claims, duration time.Duration) (string, error) {
+func (m *mockAdminTokenService) Sign(claims *pkg.Claims, duration time.Duration) (string, error) {
 	args := m.Called(claims, duration)
 	return args.String(0), args.Error(1)
 }
 
-func (m *adminMockTokenService) Validate(tokenString string) (*pkg.Claims, error) {
+func (m *mockAdminTokenService) Validate(tokenString string) (*pkg.Claims, error) {
 	args := m.Called(tokenString)
 	return args.Get(0).(*pkg.Claims), args.Error(1)
 }
 
 func TestAdminService_Login(t *testing.T) {
 	t.Run("signs token with valid claims", func(t *testing.T) {
-		mockToken := new(adminMockTokenService)
+		mockToken := new(mockAdminTokenService)
 		adminService := services.NewAdminService(mockToken)
 
 		mockToken.On("Sign", mock.Anything, 300*time.Second).Return("token", nil).Once()
@@ -46,7 +46,7 @@ func TestAdminService_Login(t *testing.T) {
 	})
 
 	t.Run("returns error when credentials are invalid", func(t *testing.T) {
-		mockToken := new(adminMockTokenService)
+		mockToken := new(mockAdminTokenService)
 		adminService := services.NewAdminService(mockToken)
 
 		req := services.LoginRequest{
@@ -56,12 +56,15 @@ func TestAdminService_Login(t *testing.T) {
 		resp, err := adminService.Login(req)
 
 		assert.Error(t, err)
+		if err, ok := err.(*services.InvalidCredentialsError); !ok {
+			t.Errorf("expected InvalidCredentialsError, got %v", err)
+		}
 		assert.EqualError(t, err, "invalid credentials")
 		assert.Nil(t, resp)
 	})
 
 	t.Run("returns error when token signing fails", func(t *testing.T) {
-		mockToken := new(adminMockTokenService)
+		mockToken := new(mockAdminTokenService)
 		adminService := services.NewAdminService(mockToken)
 
 		mockToken.On("Sign", mock.Anything, 300*time.Second).Return("", assert.AnError).Once()
@@ -79,7 +82,7 @@ func TestAdminService_Login(t *testing.T) {
 
 func TestAdminService_Refresh(t *testing.T) {
 	t.Run("successfully refreshes tokens", func(t *testing.T) {
-		mockToken := new(adminMockTokenService)
+		mockToken := new(mockAdminTokenService)
 		adminService := services.NewAdminService(mockToken)
 
 		// Mock the validation of refresh token
@@ -106,7 +109,7 @@ func TestAdminService_Refresh(t *testing.T) {
 	})
 
 	t.Run("returns error when refresh token is invalid", func(t *testing.T) {
-		mockToken := new(userMockTokenService)
+		mockToken := new(mockAdminTokenService)
 		userService := services.NewUserService(mockToken)
 
 		mockToken.On("Validate", "invalidToken").Return(&pkg.Claims{}, assert.AnError).Once()
@@ -119,7 +122,7 @@ func TestAdminService_Refresh(t *testing.T) {
 	})
 
 	t.Run("returns error when signing new token fails", func(t *testing.T) {
-		mockToken := new(userMockTokenService)
+		mockToken := new(mockAdminTokenService)
 		userService := services.NewUserService(mockToken)
 
 		mockToken.On("Validate", "validToken").Return(&pkg.Claims{
