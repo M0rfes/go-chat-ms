@@ -24,7 +24,7 @@ func init() {
 func main() {
 	router := gin.Default()
 
-	tokenService := pkg.NewAuth(secret)
+	tokenService := pkg.NewTokenService(secret)
 
 	userService := services.NewUserService(tokenService)
 	adminService := services.NewAdminService(tokenService)

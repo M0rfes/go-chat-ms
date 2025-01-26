@@ -8,7 +8,7 @@ import (
 )
 
 func TestSign(t *testing.T) {
-	authService := NewAuth("test-secret")
+	authService := NewTokenService("test-secret")
 
 	t.Run("signs token with valid claims", func(t *testing.T) {
 		claims := &Claims{
@@ -21,7 +21,7 @@ func TestSign(t *testing.T) {
 }
 
 func TestValidate(t *testing.T) {
-	authService := NewAuth("test-secret")
+	authService := NewTokenService("test-secret")
 
 	t.Run("validates token with correct secret", func(t *testing.T) {
 		claims := &Claims{
@@ -37,7 +37,7 @@ func TestValidate(t *testing.T) {
 	})
 
 	t.Run("fails validation with wrong secret", func(t *testing.T) {
-		authService := NewAuth("test-secret")
+		authService := NewTokenService("test-secret")
 
 		claims := &Claims{
 			UserID: "123",
@@ -47,7 +47,7 @@ func TestValidate(t *testing.T) {
 		token, err := authService.Sign(claims, 300*time.Second)
 		assert.NoError(t, err)
 		assert.NotEmpty(t, token)
-		authService = NewAuth("wrong-secret")
+		authService = NewTokenService("wrong-secret")
 
 		// Validate the token with the wrong secret
 		_, err = authService.Validate(token)
@@ -55,7 +55,7 @@ func TestValidate(t *testing.T) {
 	})
 
 	t.Run("fails validation with expired token", func(t *testing.T) {
-		authService := NewAuth("test-secret")
+		authService := NewTokenService("test-secret")
 
 		claims := &Claims{
 			UserID: "123",

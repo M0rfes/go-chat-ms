@@ -46,8 +46,15 @@ func TestAdminControllers_Login(t *testing.T) {
 
 		adminController.Login(c)
 
+		result := w.Result()
+		cookies := result.Cookies()
+
 		assert.Equal(t, http.StatusOK, w.Code)
 		assert.Equal(t, `{"token":"admin-token","refreshToken":"admin-refresh-token"}`, w.Body.String())
+
+		assertCookie(t, cookies, "token", "admin-token", 60*60*24)
+		assertCookie(t, cookies, "refresh-token", "admin-refresh-token", 60*60*24*30)
+
 		mockService.AssertExpectations(t)
 	})
 
@@ -112,8 +119,15 @@ func TestAdminControllers_Refresh(t *testing.T) {
 
 		adminController.Refresh(c)
 
+		result := w.Result()
+		cookies := result.Cookies()
+
 		assert.Equal(t, http.StatusOK, w.Code)
 		assert.Equal(t, `{"token":"new-admin-token","refreshToken":"new-admin-refresh-token"}`, w.Body.String())
+
+		assertCookie(t, cookies, "token", "new-admin-token", 60*60*24)
+		assertCookie(t, cookies, "refresh-token", "new-admin-refresh-token", 60*60*24*30)
+
 		mockService.AssertExpectations(t)
 	})
 

@@ -1,6 +1,9 @@
 {{ define "content" }}
 
 <style>
+  h3 {
+    text-align: center;
+  }
   form {
     margin: 0 auto;
     width: 50%;
@@ -64,6 +67,7 @@
 </style>
 
 <form>
+  <h1>login for {{.user_type}}</h1>
   <div class="form-group">
     <input
       type="text"
@@ -84,5 +88,28 @@
   </div>
   <button type="submit" class="btn btn-primary">Login</button>
 </form>
+
+<script>
+  const form = document.querySelector("form");
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const username = document.querySelector("#username").value;
+    const password = document.querySelector("#password").value;
+    const auth_url = {{.auth_url}};
+    const response = await fetch(auth_url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ username, password }),
+    });
+    if (response.ok) {
+      const data = await response.json();
+      window.location.href = {{.redirect_url}};
+    } else {
+      // TODO: handle error
+    }
+  });
+</script>
 
 {{ end }}

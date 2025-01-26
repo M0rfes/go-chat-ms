@@ -37,6 +37,9 @@ func (a *adminControllers) Login(c *gin.Context) {
 		return
 	}
 
+	c.SetCookie("token", res.Token, 60*60*24, "/", "localhost", false, true)
+	c.SetCookie("refresh-token", res.RefreshToken, 60*60*24*30, "/", "localhost", false, true)
+
 	c.JSON(200, res)
 }
 
@@ -52,6 +55,9 @@ func (a *adminControllers) Refresh(c *gin.Context) {
 		c.JSON(401, gin.H{"error": err.Error()})
 		return
 	}
+
+	c.SetCookie("token", res.Token, 60*60*24, "/", "localhost", false, true)
+	c.SetCookie("refresh-token", res.RefreshToken, 60*60*24*30, "/", "localhost", false, true)
 
 	c.JSON(200, res)
 }

@@ -35,6 +35,9 @@ func (u *userControllers) Login(c *gin.Context) {
 		return
 	}
 
+	c.SetCookie("token", resp.Token, 60*60*24, "/", "localhost", false, true)
+	c.SetCookie("refresh-token", resp.RefreshToken, 60*60*24*30, "/", "localhost", false, true)
+
 	c.JSON(http.StatusOK, resp)
 }
 
@@ -50,6 +53,8 @@ func (u *userControllers) Refresh(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
+
+	c.SetCookie("token", resp.Token, 60*60*24, "/", "localhost", false, true)
 
 	c.JSON(200, resp)
 }

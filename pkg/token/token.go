@@ -16,10 +16,10 @@ type token struct {
 	secret []byte
 }
 
-// NewAuth creates a new instance of Token with a secret key.
+// NewTokenService creates a new instance of Token with a secret key.
 // The secret key is retrieved using the getSecretKey function.
 // Returns a Token interface.
-func NewAuth(secret string) Token {
+func NewTokenService(secret string) Token {
 	return &token{
 		secret: []byte(secret),
 	}

@@ -29,6 +29,26 @@ func (m *mockUserService) Refresh(refreshToken string) (*serves.LoginResponse, e
 	return args.Get(0).(*serves.LoginResponse), args.Error(1)
 }
 
+func assertCookie(t *testing.T, cookies []*http.Cookie, name, expectedValue string, expectedMaxAge int) {
+	var cookie *http.Cookie
+	for _, c := range cookies {
+		if c.Name == name {
+			cookie = c
+			break
+		}
+	}
+
+	assert.NotNil(t, cookie, "Cookie %s should exist", name)
+	if cookie != nil {
+		assert.Equal(t, expectedValue, cookie.Value)
+		assert.Equal(t, expectedMaxAge, cookie.MaxAge)
+		assert.Equal(t, "/", cookie.Path)
+		assert.Equal(t, "localhost", cookie.Domain)
+		assert.False(t, cookie.Secure)
+		assert.True(t, cookie.HttpOnly)
+	}
+}
+
 func TestUserControllers_Login(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	mockService := new(mockUserService)
@@ -47,8 +67,15 @@ func TestUserControllers_Login(t *testing.T) {
 
 		userController.Login(c)
 
+		result := w.Result()
+		cookies := result.Cookies()
+
 		assert.Equal(t, http.StatusOK, w.Code)
 		assert.Equal(t, `{"token":"access-token","refreshToken":"refresh-token"}`, w.Body.String())
+
+		assertCookie(t, cookies, "token", "access-token", 60*60*24)
+		assertCookie(t, cookies, "refresh-token", "refresh-token", 60*60*24*30)
+
 		mockService.AssertExpectations(t)
 	})
 
@@ -116,8 +143,14 @@ func TestUserControllers_Refresh(t *testing.T) {
 
 		userController.Refresh(c)
 
+		result := w.Result()
+		cookies := result.Cookies()
+
 		assert.Equal(t, http.StatusOK, w.Code)
 		assert.Equal(t, `{"token":"new-access-token","refreshToken":"new-refresh-token"}`, w.Body.String())
+
+		assertCookie(t, cookies, "token", "new-access-token", 60*60*24)
+
 		mockService.AssertExpectations(t)
 	})
 

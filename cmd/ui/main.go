@@ -1,12 +1,26 @@
 package main
 
 import (
+	"os"
+
+	pkg "github.com/M0rfes/go-chat-ms/pkg/token"
 	"github.com/M0rfes/go-chat-ms/ui/controllers"
+	"github.com/M0rfes/go-chat-ms/ui/services"
 	"github.com/gin-contrib/multitemplate"
 	"github.com/gin-gonic/gin"
 )
 
-var port string
+var (
+	secret string
+	port   string
+)
+
+func init() {
+	secret = os.Getenv("TOKEN_SECRET")
+	if secret == "" {
+		panic("TOKEN_SECRET is required")
+	}
+}
 
 func createRender() multitemplate.Renderer {
 	r := multitemplate.NewRenderer()
@@ -22,11 +36,18 @@ func main() {
 	// Set up templating engine
 	router.HTMLRender = createRender()
 
+	tokenService := pkg.NewTokenService(secret)
+
+	userService := services.NewUserService(tokenService)
+	indexController := controllers.NewIndexController(userService)
+
 	// Routes
 	router.GET("/health", controllers.Health)
 	router.GET("/chat", controllers.ChatPage)
 	router.GET("/admin", controllers.AdminPage)
-	router.GET("/", controllers.IndexPage)
+	router.GET("/", func(ctx *gin.Context) {
+		indexController.IndexPage(ctx, nil)
+	})
 
 	// Start the server
 	router.Run(":" + port)
