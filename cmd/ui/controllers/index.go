@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/M0rfes/go-chat-ms/ui/services"
@@ -26,7 +25,6 @@ func NewIndexController(userService services.UserService) IndexController {
 
 func (i *indexController) IndexPage(c *gin.Context, html HTML) {
 	token, err := c.Cookie("token")
-	fmt.Println("=========>", token, err)
 
 	if html == nil {
 		html = c.HTML
@@ -41,7 +39,6 @@ func (i *indexController) IndexPage(c *gin.Context, html HTML) {
 		return
 	}
 	refreshToken, err := c.Cookie("refresh-token")
-	fmt.Println("=========>", refreshToken, err)
 
 	if err != nil {
 		html(http.StatusOK, "login", gin.H{
@@ -53,7 +50,6 @@ func (i *indexController) IndexPage(c *gin.Context, html HTML) {
 		return
 	}
 	resp, err := i.userService.LoginCheck(token, refreshToken)
-	fmt.Println("=========>", resp, err)
 
 	if err != nil {
 		html(http.StatusOK, "login", gin.H{
