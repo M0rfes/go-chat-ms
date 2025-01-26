@@ -9,7 +9,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var secret string
+var (
+	secret string
+	port   string
+)
 
 func init() {
 	secret = os.Getenv("TOKEN_SECRET")
@@ -38,5 +41,5 @@ func main() {
 	router.GET("/auth/admin/refresh", adminController.Refresh)
 
 	// Start the server
-	router.Run(":8081")
+	router.Run(":" + port)
 }
