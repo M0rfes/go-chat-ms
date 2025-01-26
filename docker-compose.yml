@@ -20,6 +20,23 @@ services:
       retries: 3
       start_period: 5s
 
+  chat:
+    build:
+      context: .
+      args:
+        SERVICE_NAME: "chat"
+        PORT: "8082"
+    networks:
+      - app-network
+    ports:
+      - "8082:8082"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8082/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+
   auth:
     build:
       context: .
@@ -50,6 +67,7 @@ services:
     depends_on:
       - ui
       - auth
+      - chat
 
 networks:
   app-network:

@@ -42,7 +42,7 @@ func TestIndexPage(t *testing.T) {
 				"title":        "Login Page",
 				"user_type":    "User",
 				"auth_url":     "/auth/user/login",
-				"redirect_url": "/chat",
+				"redirect_url": "/chat-page",
 			}, obj)
 		}
 		indexController.IndexPage(c, html)
@@ -66,7 +66,7 @@ func TestIndexPage(t *testing.T) {
 				"title":        "Login Page",
 				"user_type":    "User",
 				"auth_url":     "/auth/user/login",
-				"redirect_url": "/chat",
+				"redirect_url": "/chat-page",
 			}, obj)
 		}
 		indexController.IndexPage(c, html)
@@ -84,7 +84,7 @@ func TestIndexPage(t *testing.T) {
 			Value: "validToken",
 		})
 		c.Request.AddCookie(&http.Cookie{
-			Name:  "refresh_token",
+			Name:  "refresh-token",
 			Value: "validRefreshToken",
 		})
 
@@ -93,16 +93,10 @@ func TestIndexPage(t *testing.T) {
 			RefreshToken: "validRefreshToken",
 		}, nil)
 
-		html = func(code int, name string, obj any) {
-			assert.Equal(t, http.StatusOK, code)
-			assert.Equal(t, "chat", name)
-			assert.Equal(t, gin.H{
-				"title": "Chat Page",
-			}, obj)
-		}
 		indexController.IndexPage(c, html)
 
-		assert.Equal(t, http.StatusOK, w.Code)
+		assert.Equal(t, http.StatusFound, w.Code)
+		assert.Equal(t, "/chat-page", w.Header().Get("Location"))
 		mockUserService.AssertExpectations(t)
 	})
 
@@ -116,7 +110,7 @@ func TestIndexPage(t *testing.T) {
 			Value: "invalidToken",
 		})
 		c.Request.AddCookie(&http.Cookie{
-			Name:  "refresh_token",
+			Name:  "refresh-token",
 			Value: "validRefreshToken",
 		})
 
@@ -129,7 +123,7 @@ func TestIndexPage(t *testing.T) {
 				"title":        "Login Page",
 				"user_type":    "User",
 				"auth_url":     "/auth/user/login",
-				"redirect_url": "/chat",
+				"redirect_url": "/chat-page-page",
 			}, obj)
 		}
 		indexController.IndexPage(c, html)

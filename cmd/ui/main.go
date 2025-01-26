@@ -43,7 +43,7 @@ func main() {
 
 	// Routes
 	router.GET("/health", controllers.Health)
-	router.GET("/chat", controllers.ChatPage)
+	router.GET("/chat-page", controllers.ChatPage)
 	router.GET("/admin", controllers.AdminPage)
 	router.GET("/", func(ctx *gin.Context) {
 		indexController.IndexPage(ctx, nil)

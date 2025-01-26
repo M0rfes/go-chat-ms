@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/M0rfes/go-chat-ms/ui/services"
@@ -25,6 +26,8 @@ func NewIndexController(userService services.UserService) IndexController {
 
 func (i *indexController) IndexPage(c *gin.Context, html HTML) {
 	token, err := c.Cookie("token")
+	fmt.Println("=========>", token, err)
+
 	if html == nil {
 		html = c.HTML
 	}
@@ -33,33 +36,35 @@ func (i *indexController) IndexPage(c *gin.Context, html HTML) {
 			"title":        "Login Page",
 			"user_type":    "User",
 			"auth_url":     "/auth/user/login",
-			"redirect_url": "/chat",
+			"redirect_url": "/chat-page",
 		})
 		return
 	}
-	refreshToken, err := c.Cookie("refresh_token")
+	refreshToken, err := c.Cookie("refresh-token")
+	fmt.Println("=========>", refreshToken, err)
+
 	if err != nil {
 		html(http.StatusOK, "login", gin.H{
 			"title":        "Login Page",
 			"user_type":    "User",
 			"auth_url":     "/auth/user/login",
-			"redirect_url": "/chat",
+			"redirect_url": "/chat-page",
 		})
 		return
 	}
 	resp, err := i.userService.LoginCheck(token, refreshToken)
+	fmt.Println("=========>", resp, err)
+
 	if err != nil {
 		html(http.StatusOK, "login", gin.H{
 			"title":        "Login Page",
 			"user_type":    "User",
 			"auth_url":     "/auth/user/login",
-			"redirect_url": "/chat",
+			"redirect_url": "/chat-page",
 		})
 		return
 	}
 	c.SetCookie("token", resp.Token, 300, "/", "localhost", false, true)
 	c.SetCookie("refresh_token", resp.RefreshToken, 30*24*60*60, "/", "localhost", false, true)
-	html(http.StatusOK, "chat", gin.H{
-		"title": "Chat Page",
-	})
+	c.Redirect(http.StatusFound, "/chat-page")
 }
