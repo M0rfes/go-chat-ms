@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/M0rfes/go-chat-ms/auth/services"
 	"github.com/gin-gonic/gin"
@@ -35,8 +36,8 @@ func (u *userControllers) Login(c *gin.Context) {
 		return
 	}
 
-	c.SetCookie("token", resp.Token, 60*60*24, "/", "localhost", false, true)
-	c.SetCookie("refresh-token", resp.RefreshToken, 60*60*24*30, "/", "localhost", false, true)
+	c.SetCookie("token", resp.Token, 300*int(time.Second), "/", "localhost", false, true)
+	c.SetCookie("refresh-token", resp.RefreshToken, 30*24*int(time.Hour), "/", "localhost", false, true)
 
 	c.JSON(http.StatusOK, resp)
 }

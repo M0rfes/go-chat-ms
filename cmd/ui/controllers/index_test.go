@@ -24,13 +24,12 @@ func (m *MockUserService) LoginCheck(token, refreshToken string) (*services.Logi
 func TestIndexPage(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
-	mockUserService := new(MockUserService)
-
-	indexController := controllers.NewIndexController(mockUserService)
-
-	var html controllers.HTML
-
 	t.Run("no token", func(t *testing.T) {
+		mockUserService := new(MockUserService)
+		indexController := controllers.NewIndexController(mockUserService)
+
+		var html controllers.HTML
+
 		w := httptest.NewRecorder()
 		c, _ := gin.CreateTestContext(w)
 
@@ -48,9 +47,15 @@ func TestIndexPage(t *testing.T) {
 		indexController.IndexPage(c, html)
 
 		assert.Equal(t, http.StatusOK, w.Code)
+		mockUserService.AssertExpectations(t)
 	})
 
 	t.Run("no refresh token", func(t *testing.T) {
+		mockUserService := new(MockUserService)
+		indexController := controllers.NewIndexController(mockUserService)
+
+		var html controllers.HTML
+
 		w := httptest.NewRecorder()
 		c, _ := gin.CreateTestContext(w)
 
@@ -72,9 +77,15 @@ func TestIndexPage(t *testing.T) {
 		indexController.IndexPage(c, html)
 
 		assert.Equal(t, http.StatusOK, w.Code)
+		mockUserService.AssertExpectations(t)
 	})
 
 	t.Run("valid token and refresh token", func(t *testing.T) {
+		mockUserService := new(MockUserService)
+		indexController := controllers.NewIndexController(mockUserService)
+
+		var html controllers.HTML
+
 		w := httptest.NewRecorder()
 		c, _ := gin.CreateTestContext(w)
 
@@ -91,7 +102,7 @@ func TestIndexPage(t *testing.T) {
 		mockUserService.On("LoginCheck", "validToken", "validRefreshToken").Return(&services.LoginCheckResponse{
 			Token:        "validToken",
 			RefreshToken: "validRefreshToken",
-		}, nil)
+		}, nil).Once()
 
 		indexController.IndexPage(c, html)
 
@@ -101,6 +112,11 @@ func TestIndexPage(t *testing.T) {
 	})
 
 	t.Run("invalid token", func(t *testing.T) {
+		mockUserService := new(MockUserService)
+		indexController := controllers.NewIndexController(mockUserService)
+
+		var html controllers.HTML
+
 		w := httptest.NewRecorder()
 		c, _ := gin.CreateTestContext(w)
 
@@ -114,7 +130,7 @@ func TestIndexPage(t *testing.T) {
 			Value: "validRefreshToken",
 		})
 
-		mockUserService.On("LoginCheck", "invalidToken", "validRefreshToken").Return(&services.LoginCheckResponse{}, assert.AnError)
+		mockUserService.On("LoginCheck", "invalidToken", "validRefreshToken").Return(&services.LoginCheckResponse{}, assert.AnError).Once()
 
 		html = func(code int, name string, obj any) {
 			assert.Equal(t, http.StatusOK, code)
@@ -123,7 +139,7 @@ func TestIndexPage(t *testing.T) {
 				"title":        "Login Page",
 				"user_type":    "User",
 				"auth_url":     "/auth/user/login",
-				"redirect_url": "/chat-page-page",
+				"redirect_url": "/chat-page",
 			}, obj)
 		}
 		indexController.IndexPage(c, html)

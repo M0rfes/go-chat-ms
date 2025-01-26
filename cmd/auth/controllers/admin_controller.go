@@ -1,6 +1,8 @@
 package controllers
 
 import (
+	"time"
+
 	"github.com/M0rfes/go-chat-ms/auth/services"
 	"github.com/gin-gonic/gin"
 )
@@ -37,8 +39,8 @@ func (a *adminControllers) Login(c *gin.Context) {
 		return
 	}
 
-	c.SetCookie("token", res.Token, 60*60*24, "/", "localhost", false, true)
-	c.SetCookie("refresh-token", res.RefreshToken, 60*60*24*30, "/", "localhost", false, true)
+	c.SetCookie("token", res.Token, 300*int(time.Second), "/", "localhost", false, true)
+	c.SetCookie("refresh-token", res.RefreshToken, 30*24*int(time.Hour), "/", "localhost", false, true)
 
 	c.JSON(200, res)
 }
@@ -56,8 +58,8 @@ func (a *adminControllers) Refresh(c *gin.Context) {
 		return
 	}
 
-	c.SetCookie("token", res.Token, 60*60*24, "/", "localhost", false, true)
-	c.SetCookie("refresh-token", res.RefreshToken, 60*60*24*30, "/", "localhost", false, true)
+	c.SetCookie("token", res.Token, 300*int(time.Second), "/", "localhost", false, true)
+	c.SetCookie("refresh-token", res.RefreshToken, 30*24*int(time.Hour), "/", "localhost", false, true)
 
 	c.JSON(200, res)
 }
