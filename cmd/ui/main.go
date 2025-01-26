@@ -1,8 +1,10 @@
 package main
 
 import (
+	"net/http"
 	"os"
 
+	auth "github.com/M0rfes/go-chat-ms/pkg/auth"
 	pkg "github.com/M0rfes/go-chat-ms/pkg/token"
 	"github.com/M0rfes/go-chat-ms/ui/controllers"
 	"github.com/M0rfes/go-chat-ms/ui/services"
@@ -40,11 +42,20 @@ func main() {
 
 	userService := services.NewUserService(tokenService)
 	indexController := controllers.NewIndexController(userService)
-
+	chatController := controllers.NewChatController()
+	authMiddleware := auth.NewAuthMiddleware(tokenService)
+	cb := authMiddleware.TokenValidationMiddleware(
+		func(ctx *gin.Context) {
+			ctx.Redirect(http.StatusTemporaryRedirect, "/")
+		},
+	)
 	// Routes
 	router.GET("/health", controllers.Health)
-	router.GET("/chat-page", controllers.ChatPage)
-	router.GET("/admin", controllers.AdminPage)
+	router.GET("/chat-page",
+		cb, func(ctx *gin.Context) {
+			chatController.ChatPage(ctx, nil)
+		})
+	router.GET("/admin", cb, controllers.AdminPage)
 	router.GET("/", func(ctx *gin.Context) {
 		indexController.IndexPage(ctx, nil)
 	})

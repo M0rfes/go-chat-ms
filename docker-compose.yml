@@ -5,7 +5,7 @@ services:
       context: .
       args:
         SERVICE_NAME: "ui"
-        LIBRARIES: "./pkg/token"
+        LIBRARIES: "./pkg/token ./pkg/auth"
         PORT: "8080"
     networks:
       - app-network
@@ -26,6 +26,7 @@ services:
       args:
         SERVICE_NAME: "chat"
         PORT: "8082"
+        LIBRARIES: "./pkg/token" 
     networks:
       - app-network
     ports:
