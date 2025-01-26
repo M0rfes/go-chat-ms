@@ -6,6 +6,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+var port string
+
 func createRender() multitemplate.Renderer {
 	r := multitemplate.NewRenderer()
 	r.AddFromFiles("login", "templates/base.html", "templates/index.html")
@@ -27,5 +29,5 @@ func main() {
 	router.GET("/", controllers.IndexPage)
 
 	// Start the server
-	router.Run(":8080")
+	router.Run(":" + port)
 }

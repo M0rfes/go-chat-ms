@@ -2,31 +2,40 @@ version: "3.8"
 services:
   ui:
     build:
-      context: ./cmd/ui
+      context: .
+      args:
+        SERVICE_NAME: "ui"
+        PORT: "8080"
     networks:
       - app-network
     ports:
       - "8080:8080"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
-      interval: 10s                                               # Check every 10 seconds
-      timeout: 5s                                                 # Timeout after 5 seconds
-      retries: 3                                                  # Mark as unhealthy after 3 failures
-      start_period: 5s                                            # Wait 5 seconds before starting checks
-  
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+
   auth:
     build:
-      context: ./cmd/auth
+      context: .
+      args:
+        SERVICE_NAME: "auth"
+        LIBRARIES: "./pkg/token"
+        PORT: "8081"
     networks:
       - app-network
     ports:
       - "8081:8081"
+    environment:
+      - TOKEN_SECRET=secret
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8081/health"]
-      interval: 10s                                               # Check every 10 seconds
-      timeout: 5s                                                 # Timeout after 5 seconds
-      retries: 3                                                  # Mark as unhealthy after 3 failures
-      start_period: 5s                                            # Wait 5 seconds before starting checks
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
 
   gateway:
     build:
@@ -36,8 +45,8 @@ services:
     networks:
       - app-network
     depends_on:
-    - ui
-    - auth
+      - ui
+      - auth
 
 networks:
   app-network:

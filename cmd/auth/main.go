@@ -34,11 +34,11 @@ func main() {
 
 	// Routes
 	router.GET("/health", controllers.Health)
-	router.POST("/auth/user/login", userController.Login)
-	router.GET("/auth/user/refresh", userController.Refresh)
+	router.POST("/user/login", userController.Login)
+	router.GET("/user/refresh", userController.Refresh)
 
-	router.POST("/auth/admin/login", adminController.Login)
-	router.GET("/auth/admin/refresh", adminController.Refresh)
+	router.POST("/admin/login", adminController.Login)
+	router.GET("/admin/refresh", adminController.Refresh)
 
 	// Start the server
 	router.Run(":" + port)

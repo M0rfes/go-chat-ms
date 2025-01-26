@@ -43,6 +43,21 @@ WORKDIR /root/
 # Copy binary
 COPY --from=builder /app/main .
 
+COPY --from=builder /app/cmd/ui/templates ./templates
+
+RUN ls 
+
+ARG SERVICE_NAME
+RUN echo "SERVICE_NAME is: ${SERVICE_NAME}" && \
+    if [ "${SERVICE_NAME}" != "ui" ]; then \
+        echo "Removing templates as SERVICE_NAME is not ui"; \
+        rm -rf ./templates; \
+    else \
+        echo "Keeping templates as SERVICE_NAME is ui"; \
+    fi
+
+RUN ls
+
 ARG PORT
 EXPOSE ${PORT}
 
