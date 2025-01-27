@@ -5,4 +5,5 @@ use ./cmd/auth
 use ./cmd/chat
 use pkg/token
 use pkg/auth
+use pkg/message-queue
 

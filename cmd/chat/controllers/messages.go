@@ -5,14 +5,11 @@ import (
 	"log"
 	"net/http"
 
+	model "github.com/M0rfes/go-chat-ms/pkg/message-queue/models"
+	producer "github.com/M0rfes/go-chat-ms/pkg/message-queue/producers"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 )
-
-type Message struct {
-	From    string `json:"from"`
-	Message string `json:"message"`
-}
 
 type MessagesController interface {
 	HandleWebSocket(*gin.Context)
@@ -24,10 +21,14 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
-type messagesController struct{}
+type messagesController struct {
+	kafka producer.Message
+}
 
-func NewMessagesController() MessagesController {
-	return &messagesController{}
+func NewMessagesController(kafka producer.Message) MessagesController {
+	return &messagesController{
+		kafka: kafka,
+	}
 }
 
 func (m *messagesController) HandleWebSocket(c *gin.Context) {
@@ -55,9 +56,13 @@ func (m *messagesController) HandleWebSocket(c *gin.Context) {
 			log.Println("Read error:", err)
 			break
 		}
-		message := &Message{
+		message := &model.Message{
 			From:    userIdStr,
 			Message: string(p),
+		}
+		if err := m.kafka.Publish(*message); err != nil {
+			log.Println("Publish error:", err)
+			break
 		}
 		messageStr, err := json.Marshal(message)
 		if err != nil {

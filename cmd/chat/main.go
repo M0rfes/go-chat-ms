@@ -7,13 +7,15 @@ import (
 
 	"github.com/M0rfes/go-chat-ms/chat/controllers"
 	auth "github.com/M0rfes/go-chat-ms/pkg/auth"
+	producer "github.com/M0rfes/go-chat-ms/pkg/message-queue/producers"
 	token "github.com/M0rfes/go-chat-ms/pkg/token"
 	"github.com/gin-gonic/gin"
 )
 
 var (
-	port   string = "8080"
-	secret string
+	port     string = "8080"
+	secret   string
+	kafkaUrl string
 )
 
 func init() {
@@ -21,12 +23,23 @@ func init() {
 	if secret == "" {
 		panic("TOKEN_SECRET is required")
 	}
+	kafkaUrl = os.Getenv("KAFKA_URL")
+	if kafkaUrl == "" {
+		panic("KAFKA_URL is required")
+	}
 }
 
 func main() {
 	r := gin.Default()
+
+	kafkaProducer, err := producer.NewMessage(kafkaUrl)
+
+	if err != nil {
+		log.Fatal("Failed to create kafka producer:", err)
+	}
+
 	healthController := controllers.NewHealthController()
-	messageController := controllers.NewMessagesController()
+	messageController := controllers.NewMessagesController(kafkaProducer)
 	tokenService := token.NewTokenService(secret)
 	authMiddleware := auth.NewAuthMiddleware(tokenService)
 	cb := authMiddleware.TokenValidationMiddleware(func(c *gin.Context) {

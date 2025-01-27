@@ -2,6 +2,8 @@ ARG GO_VERSION=1.23
 
 FROM golang:${GO_VERSION}-alpine as builder
 
+RUN apk add --no-cache gcc g++ librdkafka-dev
+
 ENV USER=nonroot
 ENV UID=10001
 RUN adduser \
@@ -31,7 +33,7 @@ RUN go mod verify
 
 ARG PORT
 # Build the binary
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
+RUN CGO_ENABLED=1 GOOS=linux GOARCH=amd64 \
     go build -o main \
     -ldflags="-X main.port=${PORT}" ./cmd/${SERVICE_NAME}
 
