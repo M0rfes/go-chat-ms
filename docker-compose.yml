@@ -1,8 +1,9 @@
-version: "3.8"
+version: "3.9"
 services:
   ui:
     build:
       context: .
+      dockerfile: Dockerfile
       args:
         SERVICE_NAME: "ui"
         LIBRARIES: "./pkg/token ./pkg/auth"
@@ -13,6 +14,7 @@ services:
       - "8080:8080"
     environment:
       - TOKEN_SECRET=secret
+    
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
       interval: 10s

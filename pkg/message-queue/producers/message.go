@@ -5,8 +5,7 @@ import (
 
 	topic "github.com/M0rfes/go-chat-ms/pkg/message-queue"
 	model "github.com/M0rfes/go-chat-ms/pkg/message-queue/models"
-	"github.com/confluentinc/confluent-kafka-go/kafka"
-	// "github.com/confluentinc/confluent-kafka-go/v2/kafka"
+	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
 )
 
 type Message interface {
