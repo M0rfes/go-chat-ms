@@ -48,13 +48,19 @@ func TestTokenValidationMiddleware(t *testing.T) {
 		})
 
 		callbackCalled := 0
-		mockTokenService.On("Validate", "validToken").Return(&pkg.Claims{}, nil)
+		mockTokenService.On("Validate", "validToken").Return(&pkg.Claims{
+			UserID: "validUserID",
+		}, nil)
 
 		authMiddleware.TokenValidationMiddleware(func(c *gin.Context) {
 			callbackCalled++
 		})(c)
 		assert.Equal(t, 0, callbackCalled)
 		assert.Equal(t, http.StatusOK, w.Code)
+		userID, ok := c.Get("userID")
+		assert.Equal(t, true, ok)
+		assert.Equal(t, "validUserID", userID.(string))
+
 		mockTokenService.AssertExpectations(t)
 
 	})
@@ -141,6 +147,9 @@ func TestTokenValidationMiddleware(t *testing.T) {
 			callbackCalled++
 		})(c)
 		assert.Equal(t, 0, callbackCalled)
+		userID, ok := c.Get("userID")
+		assert.Equal(t, true, ok)
+		assert.Equal(t, "validUserID", userID.(string))
 		// mockTokenService.AssertExpectations(t)
 		// FIX later
 	})

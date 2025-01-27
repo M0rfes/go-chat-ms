@@ -31,14 +31,14 @@ func (a *authMiddleware) TokenValidationMiddleware(cb onUnauthorized) gin.Handle
 			cb(c)
 			return
 		}
-		_, err = a.tokenService.Validate(token)
+		claims, err := a.tokenService.Validate(token)
 		if err != nil {
 			refreshtoken, err := c.Cookie("refresh-token")
 			if err != nil {
 				cb(c)
 				return
 			}
-			claims, err := a.tokenService.Validate(refreshtoken)
+			claims, err = a.tokenService.Validate(refreshtoken)
 			if err != nil {
 				cb(c)
 				return
@@ -60,6 +60,8 @@ func (a *authMiddleware) TokenValidationMiddleware(cb onUnauthorized) gin.Handle
 			}
 			c.SetCookie("refresh-token", refreshtoken, 30*24*int(time.Hour), "/", "localhost", false, true)
 		}
+		c.Set("userID", claims.UserID)
+
 		c.Next()
 	}
 }
