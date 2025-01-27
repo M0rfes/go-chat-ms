@@ -35,13 +35,15 @@ services:
       - "8082:8082"
     environment:
       - TOKEN_SECRET=secret
-      - KAFKA_URL=localhost:9092
+      - KAFKA_URL=kafka:9092
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8082/health"]
       interval: 10s
       timeout: 5s
       retries: 3
       start_period: 5s
+    depends_on:
+      - kafka
 
   auth:
     build:
@@ -62,6 +64,25 @@ services:
       timeout: 5s
       retries: 3
       start_period: 5s
+    
+  persistent:
+    build:
+      context: .
+      args:
+        SERVICE_NAME: "persistent"
+        LIBRARIES: "./pkg/db ./pkg/message-queue"
+        PORT: "8083"
+    networks:
+      - app-network
+    ports:
+      - "8083:8083"
+    environment:
+      - KAFKA_URL=kafka:9092
+      - DB_URL=host=localhost user=postgres password=password dbname=appdb port=5432 sslmode=disable TimeZone=Asia/Dubai
+    depends_on:
+      - postgres
+      - kafka
+      
 
   gateway:
     build:
@@ -110,6 +131,7 @@ services:
       POSTGRES_DB: appdb
     volumes:
       - postgres-data:/var/lib/postgresql/data
+      - ./seed.sql:/docker-entrypoint-initdb.d/seed.sql
 
 volumes:
   postgres-data:

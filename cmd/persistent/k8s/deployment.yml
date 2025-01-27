@@ -1,22 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: chat
+  name: persistent
   labels:
-    app: chat
+    app: persistent
 spec:
   replicas: 3
   selector:
     matchLabels:
-      app: chat
+      app: persistent
   template:
     metadata:
       labels:
-        app: chat
+        app: persistent
     spec:
       containers:
-        - name: chat
-          image: localhost/chat:latest
+        - name: persistent
+          image: localhost/persistent:latest
           imagePullPolicy: Never
           ports:
             - containerPort: 8080
@@ -25,11 +25,8 @@ spec:
               value: release
             - name: KAFKA_URL
               value: localhost:9092
-            - name: TOKEN_SECRET # Handle secrets securely (see below)
-              valueFrom:
-                secretKeyRef:
-                  name: chat-secrets
-                  key: token-secret
+            - name: DB_URL # Handle secrets securely (see below)
+              value: host=localhost user=postgres password=password dbname=appdb port=5432 sslmode=disable TimeZone=Asia/Dubai
           readinessProbe:
             httpGet:
               path: /health
