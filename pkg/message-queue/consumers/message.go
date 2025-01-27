@@ -9,7 +9,7 @@ import (
 )
 
 type Message interface {
-	Consume(Consumer[model.Message])
+	Consume(msgChan chan<- *model.Message, ackChan <-chan struct{})
 }
 
 type message struct {
@@ -34,20 +34,20 @@ func NewMessage(url, groupID string) (Message, error) {
 	}, nil
 }
 
-func (m *message) Consume(consumer Consumer[model.Message]) {
+func (m *message) Consume(msgChan chan<- *model.Message, ackChan <-chan struct{}) {
 	m.consumer.SubscribeTopics([]string{topic.MessagesTopic}, nil)
 	defer m.consumer.Close()
 	for {
-		msg, err := m.consumer.ReadMessage(-1)
-		if err == nil {
-			consumer(nil, err)
+		kmsg, err := m.consumer.ReadMessage(-1)
+		if err != nil {
 			continue
 		}
-		message := &model.Message{}
-		err = json.Unmarshal(msg.Value, message)
-		if err == nil {
-			consumer(nil, err)
+		msg := &model.Message{}
+		if json.Unmarshal(kmsg.Value, msg) != nil {
+			continue
 		}
-		consumer(message, nil)
+		msgChan <- msg
+		<-ackChan
+		m.consumer.CommitMessage(kmsg)
 	}
 }
